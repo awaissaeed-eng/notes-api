@@ -266,9 +266,6 @@ notes-api/
 - Add pagination for large datasets
 - Add API rate limiting
 
-## License
-
-ISC
 
 ## Author
 
