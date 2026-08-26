@@ -1,6 +1,6 @@
 # Notes API
 
-A simple REST API for creating, reading, updating, and deleting notes built with Node.js and Express.js.
+A simple REST API for creating, reading, updating, and deleting notes built with Node.js, Express.js, and MongoDB.
 
 ## Features
 
@@ -8,13 +8,15 @@ A simple REST API for creating, reading, updating, and deleting notes built with
 - ✅ Clean and organized REST API routes
 - ✅ Input validation with error handling
 - ✅ Proper HTTP status codes (200, 201, 400, 404)
-- ✅ In-memory data storage
+- ✅ **MongoDB data storage using Mongoose**
 - ✅ JSON request/response format
+- ✅ Secure environment variables for credentials
 
 ## Tech Stack
 
 - **Node.js** - JavaScript runtime
 - **Express.js** - Web framework for building REST APIs
+- **MongoDB & Mongoose** - NoSQL database and Object Data Modeling (ODM) library
 - **JavaScript (ES6)** - Programming language
 
 ## Getting Started
@@ -23,6 +25,7 @@ A simple REST API for creating, reading, updating, and deleting notes built with
 
 - Node.js (v14 or higher)
 - npm (comes with Node.js)
+- A MongoDB Atlas account and cluster (or local MongoDB)
 
 ### Installation
 
@@ -37,7 +40,14 @@ cd notes-api
 npm install
 ```
 
-3. Start the server:
+3. Set up environment variables:
+Create a `.env` file in the root directory and add your MongoDB connection string:
+```env
+MONGO_URI=mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/notes-db?retryWrites=true&w=majority
+PORT=3000
+```
+
+4. Start the server:
 ```bash
 node server.js
 ```
@@ -53,9 +63,12 @@ Retrieve all notes.
 ```json
 [
   {
-    "id": 1,
+    "_id": "60d5ecb8b392cb22c448f700",
     "title": "Sample note",
-    "content": "This is a note"
+    "content": "This is a note",
+    "createdAt": "2023-01-01T00:00:00.000Z",
+    "updatedAt": "2023-01-01T00:00:00.000Z",
+    "__v": 0
   }
 ]
 ```
@@ -64,21 +77,17 @@ Retrieve all notes.
 Retrieve a single note by ID.
 
 **Parameters:**
-- `id` (integer) - Note ID
+- `id` (string) - MongoDB Object ID
 
 **Response:**
 ```json
 {
-  "id": 1,
+  "_id": "60d5ecb8b392cb22c448f700",
   "title": "Sample note",
-  "content": "This is a note"
-}
-```
-
-**Error Response (404):**
-```json
-{
-  "error": "Note not found"
+  "content": "This is a note",
+  "createdAt": "2023-01-01T00:00:00.000Z",
+  "updatedAt": "2023-01-01T00:00:00.000Z",
+  "__v": 0
 }
 ```
 
@@ -96,16 +105,12 @@ Create a new note.
 **Response (201):**
 ```json
 {
-  "id": 2,
+  "_id": "60d5ecb8b392cb22c448f701",
   "title": "My New Note",
-  "content": "Note content"
-}
-```
-
-**Error Response (400):**
-```json
-{
-  "error": "Title is required and cannot be empty"
+  "content": "Note content",
+  "createdAt": "2023-01-01T00:01:00.000Z",
+  "updatedAt": "2023-01-01T00:01:00.000Z",
+  "__v": 0
 }
 ```
 
@@ -113,7 +118,7 @@ Create a new note.
 Update an existing note.
 
 **Parameters:**
-- `id` (integer) - Note ID
+- `id` (string) - MongoDB Object ID
 
 **Request Body:**
 ```json
@@ -126,16 +131,12 @@ Update an existing note.
 **Response (200):**
 ```json
 {
-  "id": 1,
+  "_id": "60d5ecb8b392cb22c448f700",
   "title": "Updated Title",
-  "content": "Updated content"
-}
-```
-
-**Error Response (404):**
-```json
-{
-  "error": "Note not found"
+  "content": "Updated content",
+  "createdAt": "2023-01-01T00:00:00.000Z",
+  "updatedAt": "2023-01-01T00:02:00.000Z",
+  "__v": 0
 }
 ```
 
@@ -143,7 +144,7 @@ Update an existing note.
 Delete a note by ID.
 
 **Parameters:**
-- `id` (integer) - Note ID
+- `id` (string) - MongoDB Object ID
 
 **Response (200):**
 ```json
@@ -152,124 +153,26 @@ Delete a note by ID.
 }
 ```
 
-**Error Response (404):**
-```json
-{
-  "error": "Note not found"
-}
-```
-
-## Testing with cURL
-
-### Get all notes:
-```bash
-curl http://localhost:3000/notes
-```
-
-### Get a single note:
-```bash
-curl http://localhost:3000/notes/1
-```
-
-### Create a note:
-```bash
-curl -X POST http://localhost:3000/notes \
-  -H "Content-Type: application/json" \
-  -d '{"title":"My Note","content":"This is my note"}'
-```
-
-### Update a note:
-```bash
-curl -X PUT http://localhost:3000/notes/1 \
-  -H "Content-Type: application/json" \
-  -d '{"title":"Updated Title","content":"Updated content"}'
-```
-
-### Delete a note:
-```bash
-curl -X DELETE http://localhost:3000/notes/1
-```
-
 ## Testing with Postman
 
 1. Open Postman
-2. Create a new collection called "Notes API"
-3. Add the following requests:
-
-#### GET /notes
-- Method: GET
-- URL: `http://localhost:3000/notes`
-
-#### GET /notes/:id
-- Method: GET
-- URL: `http://localhost:3000/notes/1`
-
-#### POST /notes
-- Method: POST
-- URL: `http://localhost:3000/notes`
-- Body (raw JSON):
-```json
-{
-  "title": "My Note",
-  "content": "This is my note"
-}
-```
-
-#### PUT /notes/:id
-- Method: PUT
-- URL: `http://localhost:3000/notes/1`
-- Body (raw JSON):
-```json
-{
-  "title": "Updated Title",
-  "content": "Updated content"
-}
-```
-
-#### DELETE /notes/:id
-- Method: DELETE
-- URL: `http://localhost:3000/notes/1`
+2. Create a new collection called "Notes API - MongoDB"
+3. Test your `POST` endpoint first to get an auto-generated `_id`, then use that `_id` in the URL for your `GET /:id`, `PUT /:id`, and `DELETE /:id` requests.
 
 ## Project Structure
 
 ```
 notes-api/
+├── models/
+│   └── Note.js        # Mongoose Schema and Model
 ├── routes/
-│   ├── notes.js       # Route handlers for all endpoints
-│   └── data.js        # In-memory data storage
+│   └── notes.js       # Route handlers for all endpoints
+├── .env               # Environment variables (DB credentials)
 ├── server.js          # Main server file
 ├── package.json       # Project dependencies
 ├── .gitignore         # Git ignore file
 └── README.md          # Documentation
 ```
 
-## Validation Rules
-
-- **Title**: Required, cannot be empty or whitespace-only
-- **Content**: Optional, will be trimmed of whitespace
-- **ID**: Auto-generated integer, starts at 1 and increments
-
-## HTTP Status Codes
-
-- `200 OK` - Successful GET, PUT, DELETE request
-- `201 Created` - Successful POST request
-- `400 Bad Request` - Invalid input or validation error
-- `404 Not Found` - Note ID not found
-
-## Future Enhancements
-
-- Add database integration (MongoDB, PostgreSQL, etc.)
-- Add authentication & authorization
-- Add timestamps (created_at, updated_at)
-- Add note categories/tags
-- Add note search/filter functionality
-- Add pagination for large datasets
-- Add API rate limiting
-
 ## License
-
 ISC
-
-## Author
-
-Anais Saeed

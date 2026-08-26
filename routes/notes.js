@@ -1,23 +1,33 @@
-const data = require('./data');
-const { notes } = data;
-
 const express = require('express');
 const router = express.Router();
+const Note = require('../models/Note');
 
 // GET all notes
-router.get('/', (req, res) => {
-  res.status(200).json(notes);
+router.get('/', async (req, res) => {
+  try {
+    const notes = await Note.find();
+    res.status(200).json(notes);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 // GET single note
-router.get('/:id', (req, res) => {
-  const note = notes.find(n => n.id === parseInt(req.params.id));
-  if (!note) return res.status(404).json({ error: 'Note not found' });
-  res.status(200).json(note);
+router.get('/:id', async (req, res) => {
+  try {
+    const note = await Note.findById(req.params.id);
+    if (!note) return res.status(404).json({ error: 'Note not found' });
+    res.status(200).json(note);
+  } catch (error) {
+    if (error.name === 'CastError') {
+      return res.status(400).json({ error: 'Invalid Note ID' });
+    }
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 // POST create note
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   const { title, content } = req.body;
 
   if (!title || typeof title !== 'string' || !title.trim()) {
@@ -28,47 +38,63 @@ router.post('/', (req, res) => {
     return res.status(400).json({ error: 'Content must be a string' });
   }
 
-  const newNote = {
-    id: data.nextId++,
-    title: title.trim(),
-    content: content ? content.trim() : ''
-  };
+  try {
+    const newNote = new Note({
+      title: title.trim(),
+      content: content ? content.trim() : ''
+    });
 
-  notes.push(newNote);
-  res.status(201).json(newNote);
+    const savedNote = await newNote.save();
+    res.status(201).json(savedNote);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 // PUT update note
-router.put('/:id', (req, res) => {
-  const note = notes.find(n => n.id === parseInt(req.params.id));
-  if (!note) return res.status(404).json({ error: 'Note not found' });
-
+router.put('/:id', async (req, res) => {
   const { title, content } = req.body;
+  const updates = {};
 
   if (title !== undefined) {
     if (typeof title !== 'string' || !title.trim()) {
       return res.status(400).json({ error: 'Title cannot be empty' });
     }
-    note.title = title.trim();
+    updates.title = title.trim();
   }
 
   if (content !== undefined) {
     if (typeof content === 'string') {
-      note.content = content.trim();
+      updates.content = content.trim();
     } else {
       return res.status(400).json({ error: 'Content must be a string' });
     }
   }
 
-  res.status(200).json(note);
+  try {
+    const note = await Note.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true });
+    if (!note) return res.status(404).json({ error: 'Note not found' });
+    res.status(200).json(note);
+  } catch (error) {
+    if (error.name === 'CastError') {
+      return res.status(400).json({ error: 'Invalid Note ID' });
+    }
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 // DELETE note
-router.delete('/:id', (req, res) => {
-  const index = notes.findIndex(n => n.id === parseInt(req.params.id));
-  if (index === -1) return res.status(404).json({ error: 'Note not found' });
-  notes.splice(index, 1);
-  res.status(200).json({ message: 'Note deleted' });
+router.delete('/:id', async (req, res) => {
+  try {
+    const note = await Note.findByIdAndDelete(req.params.id);
+    if (!note) return res.status(404).json({ error: 'Note not found' });
+    res.status(200).json({ message: 'Note deleted' });
+  } catch (error) {
+    if (error.name === 'CastError') {
+      return res.status(400).json({ error: 'Invalid Note ID' });
+    }
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 module.exports = router;
