@@ -1,9 +1,15 @@
 {
   "name": "notes-api",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Notes REST API with React frontend",
+  "main": "server.js",
   "scripts": {
+    "start": "node server.js",
+    "server": "node --no-deprecation server.js",
+    "client": "cd client && set NODE_OPTIONS=--no-deprecation&& npm start",
+    "dev": "concurrently --names server,client --prefix-colors blue,green \"npm run server\" \"npm run client\"",
+    "client-install": "cd client && npm install",
+    "client-build": "cd client && npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -11,8 +17,12 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "cors": "^2.8.5",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "mongoose": "^9.9.4"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.4"
   }
 }

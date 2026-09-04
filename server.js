@@ -1,11 +1,23 @@
-require('dotenv').config();
+require('dotenv').config({ quiet: true });
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors');
+const path = require('path');
 const app = express();
 const notesRoutes = require('./routes/notes');
 
+// Enable CORS for React dev Server
+app.use(cors());
 app.use(express.json()); // middleware to parse JSON body
 app.use('/notes', notesRoutes);
+
+// Serve React Static files in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, 'client', 'build')));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'client', 'build', 'index.html'));
+  });
+}
 
 // Connect to MongoDB
 const mongoURI = process.env.MONGO_URI;

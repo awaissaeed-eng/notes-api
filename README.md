@@ -1,23 +1,33 @@
-# Notes API
+# Notes App — Full Stack (API + React Frontend)
 
-A simple REST API for creating, reading, updating, and deleting notes built with Node.js, Express.js, and MongoDB.
+A full-stack notes application with a REST API backend (Node.js, Express, MongoDB) and a React frontend that lets users view, create, and delete notes.
 
 ## Features
 
-- ✅ Full CRUD (Create, Read, Update, Delete) functionality
-- ✅ Clean and organized REST API routes
-- ✅ Input validation with error handling
+### Backend (REST API)
+- ✅ Full CRUD (Create, Read, Update, Delete) endpoints
+- ✅ MongoDB data storage using Mongoose
+- ✅ Input validation with proper error handling
 - ✅ Proper HTTP status codes (200, 201, 400, 404)
-- ✅ **MongoDB data storage using Mongoose**
-- ✅ JSON request/response format
-- ✅ Secure environment variables for credentials
+- ✅ CORS enabled for frontend communication
+
+### Frontend (React)
+- ✅ View all notes fetched from the API
+- ✅ Add new notes through a form
+- ✅ Delete notes with one click
+- ✅ Live UI updates when data changes (no page refresh)
+- ✅ Loading spinner and error state handling
+- ✅ Responsive design
 
 ## Tech Stack
 
-- **Node.js** - JavaScript runtime
-- **Express.js** - Web framework for building REST APIs
-- **MongoDB & Mongoose** - NoSQL database and Object Data Modeling (ODM) library
-- **JavaScript (ES6)** - Programming language
+| Layer | Technology |
+|-------|-----------|
+| Runtime | Node.js |
+| Backend | Express.js |
+| Database | MongoDB Atlas + Mongoose |
+| Frontend | React 19 |
+| HTTP Client | Fetch API |
 
 ## Getting Started
 
@@ -31,96 +41,74 @@ A simple REST API for creating, reading, updating, and deleting notes built with
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/awaissaeed-eng/notes-api.git
 cd notes-api
 ```
 
-2. Install dependencies:
+2. Install backend dependencies:
 ```bash
 npm install
 ```
 
-3. Set up environment variables:
-Create a `.env` file in the root directory and add your MongoDB connection string:
+3. Install frontend dependencies:
+```bash
+cd client
+npm install
+cd ..
+```
+
+4. Set up environment variables:
+
+Create a `.env` file in the root directory:
 ```env
 MONGO_URI=mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/notes-db?retryWrites=true&w=majority
 PORT=3000
 ```
 
-4. Start the server:
+### Running the App
+
+**Run both backend and frontend together (recommended):**
 ```bash
-node server.js
+npm run dev
 ```
 
-The server will run on `http://localhost:3000`
+This starts:
+- Backend API on `http://localhost:3000`
+- React frontend on `http://localhost:3001`
+
+Open `http://localhost:3001` in your browser.
+
+**Or run them separately:**
+
+Terminal 1 — Backend:
+```bash
+npm run server
+```
+
+Terminal 2 — Frontend:
+```bash
+npm run client
+```
 
 ## API Endpoints
 
-### GET /notes
-Retrieve all notes.
+| Method | URL | Description |
+|--------|-----|-------------|
+| GET | `/notes` | Get all notes |
+| GET | `/notes/:id` | Get a single note by ID |
+| POST | `/notes` | Create a new note |
+| PUT | `/notes/:id` | Update a note |
+| DELETE | `/notes/:id` | Delete a note |
 
-**Response:**
-```json
-[
-  {
-    "_id": "60d5ecb8b392cb22c448f700",
-    "title": "Sample note",
-    "content": "This is a note",
-    "createdAt": "2023-01-01T00:00:00.000Z",
-    "updatedAt": "2023-01-01T00:00:00.000Z",
-    "__v": 0
-  }
-]
-```
-
-### GET /notes/:id
-Retrieve a single note by ID.
-
-**Parameters:**
-- `id` (string) - MongoDB Object ID
-
-**Response:**
+### POST /notes — Request Body
 ```json
 {
-  "_id": "60d5ecb8b392cb22c448f700",
-  "title": "Sample note",
-  "content": "This is a note",
-  "createdAt": "2023-01-01T00:00:00.000Z",
-  "updatedAt": "2023-01-01T00:00:00.000Z",
-  "__v": 0
-}
-```
-
-### POST /notes
-Create a new note.
-
-**Request Body:**
-```json
-{
-  "title": "My New Note",
+  "title": "My Note",
   "content": "Note content"
 }
 ```
 
-**Response (201):**
-```json
-{
-  "_id": "60d5ecb8b392cb22c448f701",
-  "title": "My New Note",
-  "content": "Note content",
-  "createdAt": "2023-01-01T00:01:00.000Z",
-  "updatedAt": "2023-01-01T00:01:00.000Z",
-  "__v": 0
-}
-```
-
-### PUT /notes/:id
-Update an existing note.
-
-**Parameters:**
-- `id` (string) - MongoDB Object ID
-
-**Request Body:**
+### PUT /notes/:id — Request Body
 ```json
 {
   "title": "Updated Title",
@@ -128,51 +116,51 @@ Update an existing note.
 }
 ```
 
-**Response (200):**
-```json
-{
-  "_id": "60d5ecb8b392cb22c448f700",
-  "title": "Updated Title",
-  "content": "Updated content",
-  "createdAt": "2023-01-01T00:00:00.000Z",
-  "updatedAt": "2023-01-01T00:02:00.000Z",
-  "__v": 0
-}
-```
+## React Components
 
-### DELETE /notes/:id
-Delete a note by ID.
-
-**Parameters:**
-- `id` (string) - MongoDB Object ID
-
-**Response (200):**
-```json
-{
-  "message": "Note deleted"
-}
-```
-
-## Testing with Postman
-
-1. Open Postman
-2. Create a new collection called "Notes API - MongoDB"
-3. Test your `POST` endpoint first to get an auto-generated `_id`, then use that `_id` in the URL for your `GET /:id`, `PUT /:id`, and `DELETE /:id` requests.
+| Component | Props | Purpose |
+|-----------|-------|---------|
+| `App` | — | Main component, manages state and API calls |
+| `NoteForm` | `onAddNote` | Form to create a new note |
+| `NoteList` | `notes`, `onDeleteNote` | Renders the list of notes |
+| `NoteItem` | `note`, `onDelete` | Displays a single note card |
+| `Loader` | — | Shows a loading spinner |
 
 ## Project Structure
 
 ```
 notes-api/
+├── client/                     # React frontend
+│   ├── public/
+│   │   └── index.html
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── NoteForm.js     # Form to add new notes
+│   │   │   ├── NoteList.js     # Displays list of notes
+│   │   │   ├── NoteItem.js     # Single note card (reusable)
+│   │   │   └── Loader.js       # Loading spinner
+│   │   ├── App.js              # Main app component
+│   │   ├── App.css             # App styles
+│   │   ├── index.js            # React entry point
+│   │   └── index.css           # Global styles
+│   └── package.json
 ├── models/
-│   └── Note.js        # Mongoose Schema and Model
+│   └── Note.js                 # Mongoose schema and model
 ├── routes/
-│   └── notes.js       # Route handlers for all endpoints
-├── .env               # Environment variables (DB credentials)
-├── server.js          # Main server file
-├── package.json       # Project dependencies
-├── .gitignore         # Git ignore file
-└── README.md          # Documentation
+│   └── notes.js                # API route handlers
+├── .env                        # Environment variables (not in git)
+├── server.js                   # Express server with CORS
+├── package.json                # Backend dependencies and scripts
+├── .gitignore
+└── README.md
 ```
+
+## Environment Variables
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `MONGO_URI` | MongoDB connection string | `mongodb+srv://user:pass@cluster0.mongodb.net/` |
+| `PORT` | Backend server port (default: 3000) | `3000` |
 
 ## License
 ISC
