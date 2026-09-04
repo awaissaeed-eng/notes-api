@@ -161,6 +161,3 @@ notes-api/
 |----------|-------------|---------|
 | `MONGO_URI` | MongoDB connection string | `mongodb+srv://user:pass@cluster0.mongodb.net/` |
 | `PORT` | Backend server port (default: 3000) | `3000` |
-
-## License
-ISC
